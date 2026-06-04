@@ -1,5 +1,6 @@
 import SwiftUI
 import AVFoundation
+import UserNotifications
 
 struct TimerView: View {
     @State private var selectedMinutes: Int = 10
@@ -14,12 +15,10 @@ struct TimerView: View {
 
     private let presets = [5, 10, 15, 30, 45, 60, 90, 120]
 
-    // Cute pastel colors
     private let bgTop = Color(red: 0.93, green: 0.96, blue: 1.0)
     private let bgBottom = Color(red: 0.98, green: 0.94, blue: 0.96)
-    private let dustpanColor = Color(red: 0.7, green: 0.82, blue: 0.75)
-    private let dustpanStroke = Color(red: 0.5, green: 0.65, blue: 0.55)
     private let accentGreen = Color(red: 0.4, green: 0.75, blue: 0.55)
+    private let brownText = Color(red: 0.35, green: 0.25, blue: 0.15)
 
     var body: some View {
         ZStack {
@@ -28,15 +27,15 @@ struct TimerView: View {
 
             VStack(spacing: 0) {
                 Text("お掃除タイム")
+                    .onAppear { requestNotificationPermission() }
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(Color(red: 0.35, green: 0.55, blue: 0.4))
                     .padding(.top, 20)
 
                 Spacer()
 
-                // Main clock area
+                // Clock face with broom hand
                 ZStack {
-                    // Clock face background image
                     Image("clockface")
                         .resizable()
                         .scaledToFit()
@@ -44,35 +43,21 @@ struct TimerView: View {
                         .clipShape(Circle())
                         .shadow(color: .black.opacity(0.15), radius: 10, y: 4)
 
-                    // Timer text overlay
-                    VStack(spacing: 2) {
-                        if isRunning || isPaused {
-                            Text(timeString(remainingSeconds))
-                                .font(.system(size: 42, weight: .bold, design: .monospaced))
-                                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
-                                .shadow(color: .white.opacity(0.6), radius: 2)
-
-                            Text(isPaused ? "一時停止中" : "おそうじ中...")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(Color(red: 0.5, green: 0.4, blue: 0.3))
-                        } else {
-                            Text("🧹")
-                                .font(.system(size: 40))
-                        }
-                    }
-                    .offset(y: 40)
-
-                    // Broom (clock hand) - rotates from center pivot
+                    // Broom as clock hand - pivots from center, points outward
                     if isRunning || isPaused {
                         Image("broomhand")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 200, height: 200)
+                            .frame(width: 180, height: 180)
                             .rotationEffect(.degrees(broomAngle), anchor: .center)
                             .animation(.linear(duration: 0.5), value: broomAngle)
+                    } else {
+                        // Idle: show broom emoji at center
+                        Text("🧹")
+                            .font(.system(size: 50))
                     }
 
-                    // Sparkle particles when running
+                    // Sparkles when running
                     if isRunning {
                         ForEach(0..<6, id: \.self) { i in
                             SparkleView()
@@ -83,22 +68,32 @@ struct TimerView: View {
                         }
                     }
                 }
-                .frame(height: 320)
+
+                // Remaining time below the clock
+                if isRunning || isPaused {
+                    VStack(spacing: 4) {
+                        Text(timeString(remainingSeconds))
+                            .font(.system(size: 52, weight: .bold, design: .monospaced))
+                            .foregroundColor(brownText)
+
+                        Text(isPaused ? "一時停止中" : "おそうじ中...")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.secondary)
+                    }
+                    .padding(.top, 16)
+                }
 
                 Spacer()
 
                 if !isRunning && !isPaused {
-                    // Time selector
                     timeSelector
                 } else {
-                    // Controls during timer
                     timerControls
                 }
 
                 Spacer().frame(height: 40)
             }
 
-            // Completion overlay
             if showComplete {
                 completeOverlay
             }
@@ -108,42 +103,31 @@ struct TimerView: View {
     // MARK: - Time selector
     private var timeSelector: some View {
         VStack(spacing: 16) {
-            // Dustpan with time buttons inside
-            ZStack {
-                Image("dustpan")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 280)
-                    .opacity(0.35)
+            Text("おそうじ時間を選んでね")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.secondary)
 
-                VStack(spacing: 8) {
-                    Text("おそうじ時間を選んでね")
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundColor(.secondary)
-
-                    LazyVGrid(columns: [
-                        GridItem(.flexible()), GridItem(.flexible()),
-                        GridItem(.flexible()), GridItem(.flexible())
-                    ], spacing: 10) {
-                        ForEach(presets, id: \.self) { minutes in
-                            Button {
-                                selectedMinutes = minutes
-                            } label: {
-                                Text("\(minutes)分")
-                                    .font(.system(size: 15, weight: .bold))
-                                    .foregroundColor(selectedMinutes == minutes ? .white : accentGreen)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .fill(selectedMinutes == minutes ? accentGreen : accentGreen.opacity(0.15))
-                                    )
-                            }
-                        }
+            LazyVGrid(columns: [
+                GridItem(.flexible()), GridItem(.flexible()),
+                GridItem(.flexible()), GridItem(.flexible())
+            ], spacing: 12) {
+                ForEach(presets, id: \.self) { minutes in
+                    Button {
+                        selectedMinutes = minutes
+                    } label: {
+                        Text("\(minutes)分")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(selectedMinutes == minutes ? .white : accentGreen)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(selectedMinutes == minutes ? accentGreen : accentGreen.opacity(0.1))
+                            )
                     }
                 }
-                .padding(.horizontal, 30)
             }
+            .padding(.horizontal, 24)
 
             Button {
                 startTimer()
@@ -169,13 +153,8 @@ struct TimerView: View {
     // MARK: - Timer controls
     private var timerControls: some View {
         HStack(spacing: 20) {
-            // Pause / Resume
             Button {
-                if isPaused {
-                    resumeTimer()
-                } else {
-                    pauseTimer()
-                }
+                isPaused ? resumeTimer() : pauseTimer()
             } label: {
                 Image(systemName: isPaused ? "play.fill" : "pause.fill")
                     .font(.system(size: 24))
@@ -185,7 +164,6 @@ struct TimerView: View {
                     .clipShape(Circle())
             }
 
-            // Stop
             Button {
                 stopTimer()
             } label: {
@@ -252,24 +230,14 @@ struct TimerView: View {
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             guard isRunning, !isPaused else { return }
             remainingSeconds -= 1
-
-            // Broom rotates 360 degrees over the total duration
             let elapsed = totalSeconds - remainingSeconds
             broomAngle = Double(elapsed) / Double(totalSeconds) * 360.0
-
-            if remainingSeconds <= 0 {
-                completeTimer()
-            }
+            if remainingSeconds <= 0 { completeTimer() }
         }
     }
 
-    private func pauseTimer() {
-        isPaused = true
-    }
-
-    private func resumeTimer() {
-        isPaused = false
-    }
+    private func pauseTimer() { isPaused = true }
+    private func resumeTimer() { isPaused = false }
 
     private func stopTimer() {
         timer?.invalidate()
@@ -286,17 +254,31 @@ struct TimerView: View {
         isRunning = false
         isPaused = false
         showComplete = true
-        playSound()
-        hapticFeedback()
-    }
 
-    private func playSound() {
-        AudioServicesPlaySystemSound(1005) // tri-tone
-    }
-
-    private func hapticFeedback() {
+        // Strong haptic vibration pattern
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            generator.notificationOccurred(.warning)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+            generator.notificationOccurred(.success)
+        }
+
+        // System sound
+        AudioServicesPlaySystemSound(1005)
+
+        // Local notification (for background)
+        let content = UNMutableNotificationContent()
+        content.title = "お掃除完了！"
+        content.body = "おつかれさまでした！✨🧹✨"
+        content.sound = .default
+        let request = UNNotificationRequest(identifier: "osouji_done", content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(request)
+    }
+
+    private func requestNotificationPermission() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
     }
 
     private func timeString(_ seconds: Int) -> String {
@@ -306,7 +288,6 @@ struct TimerView: View {
     }
 }
 
-// MARK: - Sparkle animation
 struct SparkleView: View {
     @State private var opacity: Double = 0
     @State private var yOffset: CGFloat = 0
