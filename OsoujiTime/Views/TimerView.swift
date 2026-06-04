@@ -36,28 +36,39 @@ struct TimerView: View {
 
                 // Main clock area
                 ZStack {
-                    // Realistic dustpan background
-                    DustpanView(size: 280)
+                    // Clock face background image
+                    Image("clockface")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 300, height: 300)
+                        .clipShape(Circle())
+                        .shadow(color: .black.opacity(0.15), radius: 10, y: 4)
 
-                    // Timer text
-                    VStack(spacing: 4) {
+                    // Timer text overlay
+                    VStack(spacing: 2) {
                         if isRunning || isPaused {
                             Text(timeString(remainingSeconds))
-                                .font(.system(size: 56, weight: .bold, design: .monospaced))
-                                .foregroundColor(Color(red: 0.3, green: 0.5, blue: 0.35))
+                                .font(.system(size: 42, weight: .bold, design: .monospaced))
+                                .foregroundColor(Color(red: 0.35, green: 0.25, blue: 0.15))
+                                .shadow(color: .white.opacity(0.6), radius: 2)
 
                             Text(isPaused ? "一時停止中" : "おそうじ中...")
-                                .font(.system(size: 16, weight: .medium))
-                                .foregroundColor(.secondary)
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(Color(red: 0.5, green: 0.4, blue: 0.3))
+                        } else {
+                            Text("🧹")
+                                .font(.system(size: 40))
                         }
                     }
-                    .offset(y: -20)
+                    .offset(y: 40)
 
-                    // Broom (clock hand) - rotates during timer
+                    // Broom (clock hand) - rotates from center pivot
                     if isRunning || isPaused {
-                        BroomView()
-                            .rotationEffect(.degrees(broomAngle), anchor: .bottom)
-                            .offset(y: -65)
+                        Image("broomhand")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 200, height: 200)
+                            .rotationEffect(.degrees(broomAngle), anchor: .center)
                             .animation(.linear(duration: 0.5), value: broomAngle)
                     }
 
@@ -66,13 +77,13 @@ struct TimerView: View {
                         ForEach(0..<6, id: \.self) { i in
                             SparkleView()
                                 .offset(
-                                    x: CGFloat.random(in: -100...100),
-                                    y: CGFloat.random(in: -80...80)
+                                    x: CGFloat.random(in: -120...120),
+                                    y: CGFloat.random(in: -120...120)
                                 )
                         }
                     }
                 }
-                .frame(height: 380)
+                .frame(height: 320)
 
                 Spacer()
 

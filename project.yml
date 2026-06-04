@@ -21,6 +21,10 @@ targets:
     deploymentTarget: "16.0"
     sources:
       - OsoujiTime
+    dependencies:
+      - target: OsoujiTimeWatch
+        embed: true
+        codeSign: true
     settings:
       base:
         PRODUCT_NAME: OsoujiTime
@@ -59,7 +63,7 @@ targets:
     settings:
       base:
         PRODUCT_NAME: OsoujiTimeWatch
-        PRODUCT_BUNDLE_IDENTIFIER: com.tokyonasu.osoujiTime.watchkitapp
+        PRODUCT_BUNDLE_IDENTIFIER: com.tokyonasu.osoujiTime.watch
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_FILE: OsoujiTimeWatch/Resources/Info.plist
     info:
