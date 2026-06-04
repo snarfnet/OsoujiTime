@@ -71,4 +71,5 @@ targets:
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
         ITSAppUsesNonExemptEncryption: false
+        WKApplication: true
         WKCompanionAppBundleIdentifier: com.tokyonasu.osoujiTime
