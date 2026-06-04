@@ -43,13 +43,15 @@ struct TimerView: View {
                         .clipShape(Circle())
                         .shadow(color: .black.opacity(0.15), radius: 10, y: 4)
 
-                    // Broom as clock hand - pivots from center, points outward
+                    // Broom as clock hand - knob at clock center, bristles sweep outward
                     if isRunning || isPaused {
                         Image("broomhand")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 180, height: 180)
-                            .rotationEffect(.degrees(broomAngle), anchor: .center)
+                            .frame(width: 165, height: 165)
+                            .blendMode(.multiply)
+                            .rotationEffect(.degrees(broomAngle - 45), anchor: UnitPoint(0.22, 0.78))
+                            .offset(x: 46, y: -46)
                             .animation(.linear(duration: 0.5), value: broomAngle)
                     } else {
                         // Idle: show broom emoji at center
