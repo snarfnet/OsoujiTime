@@ -108,31 +108,42 @@ struct TimerView: View {
     // MARK: - Time selector
     private var timeSelector: some View {
         VStack(spacing: 16) {
-            Text("おそうじ時間を選んでね")
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(.secondary)
+            // Dustpan with time buttons inside
+            ZStack {
+                Image("dustpan")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 280)
+                    .opacity(0.35)
 
-            LazyVGrid(columns: [
-                GridItem(.flexible()), GridItem(.flexible()),
-                GridItem(.flexible()), GridItem(.flexible())
-            ], spacing: 12) {
-                ForEach(presets, id: \.self) { minutes in
-                    Button {
-                        selectedMinutes = minutes
-                    } label: {
-                        Text("\(minutes)分")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(selectedMinutes == minutes ? .white : accentGreen)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(selectedMinutes == minutes ? accentGreen : accentGreen.opacity(0.1))
-                            )
+                VStack(spacing: 8) {
+                    Text("おそうじ時間を選んでね")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundColor(.secondary)
+
+                    LazyVGrid(columns: [
+                        GridItem(.flexible()), GridItem(.flexible()),
+                        GridItem(.flexible()), GridItem(.flexible())
+                    ], spacing: 10) {
+                        ForEach(presets, id: \.self) { minutes in
+                            Button {
+                                selectedMinutes = minutes
+                            } label: {
+                                Text("\(minutes)分")
+                                    .font(.system(size: 15, weight: .bold))
+                                    .foregroundColor(selectedMinutes == minutes ? .white : accentGreen)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(selectedMinutes == minutes ? accentGreen : accentGreen.opacity(0.15))
+                                    )
+                            }
+                        }
                     }
                 }
+                .padding(.horizontal, 30)
             }
-            .padding(.horizontal, 24)
 
             Button {
                 startTimer()
