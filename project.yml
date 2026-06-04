@@ -23,6 +23,8 @@ targets:
       - OsoujiTime
     dependencies:
       - target: OsoujiTimeWatch
+        embed: true
+        codeSign: true
     settings:
       base:
         PRODUCT_NAME: OsoujiTime
