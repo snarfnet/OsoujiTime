@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"sleep 60 && cd C:/Users/Windows/asc-automation && node -e \\\"\\nconst fs = require('fs');\\nconst jwt = require('jsonwebtoken');\\nconst https = require('https');\\nconst key = fs.readFileSync(...",
+  "error": "Exit code 1\n[eval]:17\r\n    const b = JSON.parse(d).data[0];\r\n                                ^\r\n\r\nTypeError: Cannot read properties of undefined (reading '0')\r\n    at IncomingMessage.<anonymous> ([eval]:17:33)\r\n    at IncomingMessage.emit (node:events:520:35)\r\n    at endReadableNT (node:internal/streams/readable:1729:12)\r\n    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)\r\n\r\nNode.js v24.14.0",
+  "timestamp": "2026-06-04T06:44:50.002Z",
+  "retry_count": 1
+}

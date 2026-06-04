@@ -49,6 +49,7 @@ jobs:
           -scheme OsoujiTime \
           -configuration Release \
           -destination "generic/platform=iOS" \
+          -destination "generic/platform=watchOS" \
           -archivePath build/OsoujiTime.xcarchive \
           CODE_SIGN_STYLE=Automatic \
           DEVELOPMENT_TEAM=83VGKGSQUH \
