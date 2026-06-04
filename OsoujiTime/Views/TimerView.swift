@@ -54,9 +54,13 @@ struct TimerView: View {
                             .offset(x: 46, y: -46)
                             .animation(.linear(duration: 0.5), value: broomAngle)
                     } else {
-                        // Idle: show broom emoji at center
-                        Text("🧹")
-                            .font(.system(size: 50))
+                        Image("broomhand")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 200, height: 200)
+                            .blendMode(.multiply)
+                            .rotationEffect(.degrees(-45), anchor: UnitPoint(x: 0.22, y: 0.78))
+                            .offset(x: 46, y: -46)
                     }
 
                     // Sparkles when running
