@@ -72,6 +72,8 @@ struct TimerView: View {
                         }
                     }
                 }
+                .frame(width: 300, height: 300)
+                .clipped()
                 .clipShape(Circle())
                 .shadow(color: .black.opacity(0.15), radius: 10, y: 4)
 
