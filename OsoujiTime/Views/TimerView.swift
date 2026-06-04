@@ -42,23 +42,24 @@ struct TimerView: View {
                         .frame(width: 300, height: 300)
 
                     // Broom as clock hand - knob at clock center, bristles sweep outward
+                    // W=145: bristle tip ~149px from center, fits within clock radius 150px
                     if isRunning || isPaused {
                         Image("broomhand")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 165, height: 165)
+                            .frame(width: 145, height: 145)
                             .blendMode(.multiply)
                             .rotationEffect(.degrees(broomAngle - 45), anchor: UnitPoint(x: 0.22, y: 0.78))
-                            .offset(x: 46, y: -46)
+                            .offset(x: 41, y: -41)
                             .animation(.linear(duration: 0.5), value: broomAngle)
                     } else {
                         Image("broomhand")
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 200, height: 200)
+                            .frame(width: 145, height: 145)
                             .blendMode(.multiply)
                             .rotationEffect(.degrees(-45), anchor: UnitPoint(x: 0.22, y: 0.78))
-                            .offset(x: 56, y: -56)
+                            .offset(x: 41, y: -41)
                     }
 
                     // Sparkles when running
