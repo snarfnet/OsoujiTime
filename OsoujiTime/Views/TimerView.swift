@@ -40,8 +40,6 @@ struct TimerView: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: 300, height: 300)
-                        .clipShape(Circle())
-                        .shadow(color: .black.opacity(0.15), radius: 10, y: 4)
 
                     // Broom as clock hand - knob at clock center, bristles sweep outward
                     if isRunning || isPaused {
@@ -74,6 +72,8 @@ struct TimerView: View {
                         }
                     }
                 }
+                .clipShape(Circle())
+                .shadow(color: .black.opacity(0.15), radius: 10, y: 4)
 
                 // Remaining time below the clock
                 if isRunning || isPaused {
