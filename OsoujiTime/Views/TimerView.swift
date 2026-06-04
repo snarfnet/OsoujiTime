@@ -58,7 +58,7 @@ struct TimerView: View {
                             .frame(width: 200, height: 200)
                             .blendMode(.multiply)
                             .rotationEffect(.degrees(-45), anchor: UnitPoint(x: 0.22, y: 0.78))
-                            .offset(x: 46, y: -46)
+                            .offset(x: 56, y: -56)
                     }
 
                     // Sparkles when running
