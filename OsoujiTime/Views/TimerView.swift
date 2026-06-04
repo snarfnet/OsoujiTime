@@ -50,7 +50,7 @@ struct TimerView: View {
                             .scaledToFit()
                             .frame(width: 165, height: 165)
                             .blendMode(.multiply)
-                            .rotationEffect(.degrees(broomAngle - 45), anchor: UnitPoint(0.22, 0.78))
+                            .rotationEffect(.degrees(broomAngle - 45), anchor: UnitPoint(x: 0.22, y: 0.78))
                             .offset(x: 46, y: -46)
                             .animation(.linear(duration: 0.5), value: broomAngle)
                     } else {
