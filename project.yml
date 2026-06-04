@@ -1,0 +1,50 @@
+name: OsoujiTime
+options:
+  bundleIdPrefix: com.tokyonasu
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "16.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: 1
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: 83VGKGSQUH
+
+targets:
+  OsoujiTime:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - OsoujiTime
+    settings:
+      base:
+        PRODUCT_NAME: OsoujiTime
+        PRODUCT_BUNDLE_IDENTIFIER: com.tokyonasu.osoujiTime
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        INFOPLIST_FILE: OsoujiTime/Resources/Info.plist
+    info:
+      path: OsoujiTime/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: "お掃除タイム"
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        LSRequiresIPhoneOS: true
+        LSApplicationCategoryType: public.app-category.utilities
+        ITSAppUsesNonExemptEncryption: false
+        UILaunchScreen:
+          UIColorName: ""
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIUserInterfaceStyle: Light
+        UIBackgroundModes:
+          - audio

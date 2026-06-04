@@ -1,0 +1,310 @@
+import SwiftUI
+import AVFoundation
+
+struct TimerView: View {
+    @State private var selectedMinutes: Int = 10
+    @State private var remainingSeconds: Int = 0
+    @State private var totalSeconds: Int = 0
+    @State private var isRunning = false
+    @State private var isPaused = false
+    @State private var timer: Timer?
+    @State private var broomAngle: Double = 0
+    @State private var showComplete = false
+    @State private var audioPlayer: AVAudioPlayer?
+
+    private let presets = [5, 10, 15, 30, 45, 60, 90, 120]
+
+    // Cute pastel colors
+    private let bgTop = Color(red: 0.93, green: 0.96, blue: 1.0)
+    private let bgBottom = Color(red: 0.98, green: 0.94, blue: 0.96)
+    private let dustpanColor = Color(red: 0.7, green: 0.82, blue: 0.75)
+    private let dustpanStroke = Color(red: 0.5, green: 0.65, blue: 0.55)
+    private let accentGreen = Color(red: 0.4, green: 0.75, blue: 0.55)
+
+    var body: some View {
+        ZStack {
+            LinearGradient(colors: [bgTop, bgBottom], startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                Text("お掃除タイム")
+                    .font(.system(size: 28, weight: .bold))
+                    .foregroundColor(Color(red: 0.35, green: 0.55, blue: 0.4))
+                    .padding(.top, 20)
+
+                Spacer()
+
+                // Main clock area
+                ZStack {
+                    // Dustpan background
+                    DustpanShape()
+                        .fill(dustpanColor.opacity(0.3))
+                        .overlay(
+                            DustpanShape()
+                                .stroke(dustpanStroke.opacity(0.4), lineWidth: 3)
+                        )
+                        .frame(width: 280, height: 360)
+
+                    // Timer text
+                    VStack(spacing: 4) {
+                        if isRunning || isPaused {
+                            Text(timeString(remainingSeconds))
+                                .font(.system(size: 56, weight: .bold, design: .monospaced))
+                                .foregroundColor(Color(red: 0.3, green: 0.5, blue: 0.35))
+
+                            Text(isPaused ? "一時停止中" : "おそうじ中...")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                    .offset(y: -20)
+
+                    // Broom (clock hand) - rotates during timer
+                    if isRunning || isPaused {
+                        BroomView()
+                            .rotationEffect(.degrees(broomAngle), anchor: .bottom)
+                            .offset(y: -65)
+                            .animation(.linear(duration: 0.5), value: broomAngle)
+                    }
+
+                    // Sparkle particles when running
+                    if isRunning {
+                        ForEach(0..<6, id: \.self) { i in
+                            SparkleView()
+                                .offset(
+                                    x: CGFloat.random(in: -100...100),
+                                    y: CGFloat.random(in: -80...80)
+                                )
+                        }
+                    }
+                }
+                .frame(height: 380)
+
+                Spacer()
+
+                if !isRunning && !isPaused {
+                    // Time selector
+                    timeSelector
+                } else {
+                    // Controls during timer
+                    timerControls
+                }
+
+                Spacer().frame(height: 40)
+            }
+
+            // Completion overlay
+            if showComplete {
+                completeOverlay
+            }
+        }
+    }
+
+    // MARK: - Time selector
+    private var timeSelector: some View {
+        VStack(spacing: 16) {
+            Text("おそうじ時間を選んでね")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(.secondary)
+
+            LazyVGrid(columns: [
+                GridItem(.flexible()), GridItem(.flexible()),
+                GridItem(.flexible()), GridItem(.flexible())
+            ], spacing: 12) {
+                ForEach(presets, id: \.self) { minutes in
+                    Button {
+                        selectedMinutes = minutes
+                    } label: {
+                        Text("\(minutes)分")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(selectedMinutes == minutes ? .white : accentGreen)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(selectedMinutes == minutes ? accentGreen : accentGreen.opacity(0.1))
+                            )
+                    }
+                }
+            }
+            .padding(.horizontal, 24)
+
+            Button {
+                startTimer()
+            } label: {
+                HStack(spacing: 8) {
+                    Text("🧹")
+                    Text("おそうじスタート！")
+                        .fontWeight(.bold)
+                }
+                .font(.system(size: 20))
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 16)
+                .background(accentGreen)
+                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .shadow(color: accentGreen.opacity(0.4), radius: 8, y: 4)
+            }
+            .padding(.horizontal, 32)
+            .padding(.top, 8)
+        }
+    }
+
+    // MARK: - Timer controls
+    private var timerControls: some View {
+        HStack(spacing: 20) {
+            // Pause / Resume
+            Button {
+                if isPaused {
+                    resumeTimer()
+                } else {
+                    pauseTimer()
+                }
+            } label: {
+                Image(systemName: isPaused ? "play.fill" : "pause.fill")
+                    .font(.system(size: 24))
+                    .foregroundColor(.white)
+                    .frame(width: 60, height: 60)
+                    .background(Color.orange)
+                    .clipShape(Circle())
+            }
+
+            // Stop
+            Button {
+                stopTimer()
+            } label: {
+                Image(systemName: "stop.fill")
+                    .font(.system(size: 24))
+                    .foregroundColor(.white)
+                    .frame(width: 60, height: 60)
+                    .background(Color.red.opacity(0.8))
+                    .clipShape(Circle())
+            }
+        }
+    }
+
+    // MARK: - Completion overlay
+    private var completeOverlay: some View {
+        ZStack {
+            Color.black.opacity(0.5).ignoresSafeArea()
+
+            VStack(spacing: 20) {
+                Text("✨🧹✨")
+                    .font(.system(size: 60))
+
+                Text("おそうじ完了！")
+                    .font(.system(size: 32, weight: .bold))
+                    .foregroundColor(accentGreen)
+
+                Text("おつかれさまでした！")
+                    .font(.system(size: 18))
+                    .foregroundColor(.white.opacity(0.9))
+
+                Button {
+                    showComplete = false
+                } label: {
+                    Text("もどる")
+                        .font(.system(size: 18, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 40)
+                        .padding(.vertical, 14)
+                        .background(accentGreen)
+                        .clipShape(Capsule())
+                }
+                .padding(.top, 8)
+            }
+            .padding(32)
+            .background(
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(.ultraThinMaterial)
+            )
+            .padding(.horizontal, 32)
+        }
+    }
+
+    // MARK: - Timer logic
+    private func startTimer() {
+        totalSeconds = selectedMinutes * 60
+        remainingSeconds = totalSeconds
+        broomAngle = 0
+        isRunning = true
+        isPaused = false
+        startTicking()
+    }
+
+    private func startTicking() {
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            guard isRunning, !isPaused else { return }
+            remainingSeconds -= 1
+
+            // Broom rotates 360 degrees over the total duration
+            let elapsed = totalSeconds - remainingSeconds
+            broomAngle = Double(elapsed) / Double(totalSeconds) * 360.0
+
+            if remainingSeconds <= 0 {
+                completeTimer()
+            }
+        }
+    }
+
+    private func pauseTimer() {
+        isPaused = true
+    }
+
+    private func resumeTimer() {
+        isPaused = false
+    }
+
+    private func stopTimer() {
+        timer?.invalidate()
+        timer = nil
+        isRunning = false
+        isPaused = false
+        remainingSeconds = 0
+        broomAngle = 0
+    }
+
+    private func completeTimer() {
+        timer?.invalidate()
+        timer = nil
+        isRunning = false
+        isPaused = false
+        showComplete = true
+        playSound()
+        hapticFeedback()
+    }
+
+    private func playSound() {
+        AudioServicesPlaySystemSound(1005) // tri-tone
+    }
+
+    private func hapticFeedback() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+    }
+
+    private func timeString(_ seconds: Int) -> String {
+        let m = seconds / 60
+        let s = seconds % 60
+        return String(format: "%02d:%02d", m, s)
+    }
+}
+
+// MARK: - Sparkle animation
+struct SparkleView: View {
+    @State private var opacity: Double = 0
+    @State private var yOffset: CGFloat = 0
+
+    var body: some View {
+        Text("✨")
+            .font(.system(size: CGFloat.random(in: 12...20)))
+            .opacity(opacity)
+            .offset(y: yOffset)
+            .onAppear {
+                withAnimation(.easeInOut(duration: Double.random(in: 1.5...3.0)).repeatForever(autoreverses: true)) {
+                    opacity = Double.random(in: 0.4...1.0)
+                    yOffset = CGFloat.random(in: -20...20)
+                }
+            }
+    }
+}
