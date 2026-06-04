@@ -43,7 +43,7 @@ jobs:
         mkdir -p ~/.appstoreconnect/private_keys
         echo "$ASC_API_KEY_CONTENT" | base64 -D > ~/.appstoreconnect/private_keys/AuthKey_WDXGY9WX55.p8
 
-    - name: Build Archive
+    - name: Build Archive iOS
       run: |
         xcodebuild archive \
           -scheme OsoujiTime \

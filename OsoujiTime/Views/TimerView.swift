@@ -36,14 +36,8 @@ struct TimerView: View {
 
                 // Main clock area
                 ZStack {
-                    // Dustpan background
-                    DustpanShape()
-                        .fill(dustpanColor.opacity(0.3))
-                        .overlay(
-                            DustpanShape()
-                                .stroke(dustpanStroke.opacity(0.4), lineWidth: 3)
-                        )
-                        .frame(width: 280, height: 360)
+                    // Realistic dustpan background
+                    DustpanView(size: 280)
 
                     // Timer text
                     VStack(spacing: 4) {
